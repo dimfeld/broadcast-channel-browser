@@ -30,7 +30,10 @@
 
 * * *
 
-A BroadcastChannel that allows you to send data between different browser-tabs or nodejs-processes.
+A BroadcastChannel that allows you to send data between different browser-tabs.
 And a LeaderElection over the channels.
+
+This is a fork of the original `broadcast-channel` package, with Node.js support removed
+so that it can be used in pure ES Modules contexts that don't have `require`.
 
 # [Read the full documentation on github](https://github.com/pubkey/broadcast-channel)

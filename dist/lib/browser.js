@@ -622,7 +622,7 @@ function createLeaderElection(channel, options) {
   channel._leaderElector = elector;
   return elector;
 }
-},{"./util.js":12,"@babel/runtime/helpers/interopRequireDefault":13,"unload":19}],6:[function(require,module,exports){
+},{"./util.js":12,"@babel/runtime/helpers/interopRequireDefault":13,"unload":18}],6:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -640,35 +640,9 @@ var _localstorage = _interopRequireDefault(require("./methods/localstorage.js"))
 
 var _simulate = _interopRequireDefault(require("./methods/simulate.js"));
 
-var _util = require("./util");
-
 // order is important
 var METHODS = [_native["default"], // fastest
 _indexedDb["default"], _localstorage["default"]];
-/**
- * The NodeMethod is loaded lazy
- * so it will not get bundled in browser-builds
- */
-
-if (_util.isNode) {
-  /**
-   * we use the non-transpiled code for nodejs
-   * because it runs faster
-   */
-  var NodeMethod = require('../../src/methods/' + // use this hack so that browserify and others
-  // do not import the node-method by default
-  // when bundling.
-  'node.js');
-  /**
-   * this will be false for webpackbuilds
-   * which will shim the node-method with an empty object {}
-   */
-
-
-  if (typeof NodeMethod.canBeUsed === 'function') {
-    METHODS.push(NodeMethod);
-  }
-}
 
 function chooseMethod(options) {
   var chooseMethods = [].concat(options.methods, METHODS).filter(Boolean); // directly chosen
@@ -690,7 +664,7 @@ function chooseMethod(options) {
    */
 
 
-  if (!options.webWorkerSupport && !_util.isNode) {
+  if (!options.webWorkerSupport) {
     chooseMethods = chooseMethods.filter(function (m) {
       return m.type !== 'idb';
     });
@@ -699,11 +673,11 @@ function chooseMethod(options) {
   var useMethod = chooseMethods.find(function (method) {
     return method.canBeUsed();
   });
-  if (!useMethod) throw new Error('No useable methode found:' + JSON.stringify(METHODS.map(function (m) {
+  if (!useMethod) throw new Error('No useable method found:' + JSON.stringify(METHODS.map(function (m) {
     return m.type;
   })));else return useMethod;
 }
-},{"./methods/indexed-db.js":7,"./methods/localstorage.js":8,"./methods/native.js":9,"./methods/simulate.js":10,"./util":12,"@babel/runtime/helpers/interopRequireDefault":13}],7:[function(require,module,exports){
+},{"./methods/indexed-db.js":7,"./methods/localstorage.js":8,"./methods/native.js":9,"./methods/simulate.js":10,"@babel/runtime/helpers/interopRequireDefault":13}],7:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1033,7 +1007,6 @@ function onMessage(channelState, fn, time) {
 }
 
 function canBeUsed() {
-  if (_util.isNode) return false;
   var idb = getIdb();
   if (!idb) return false;
   return true;
@@ -1211,7 +1184,6 @@ function onMessage(channelState, fn, time) {
 }
 
 function canBeUsed() {
-  if (_util.isNode) return false;
   var ls = getLocalStorage();
   if (!ls) return false;
 
@@ -1309,12 +1281,6 @@ function onMessage(channelState, fn) {
 }
 
 function canBeUsed() {
-  /**
-   * in the electron-renderer, isNode will be true even if we are in browser-context
-   * so we also check if window is undefined
-   */
-  if (_util.isNode && typeof window === 'undefined') return false;
-
   if (typeof BroadcastChannel === 'function') {
     if (BroadcastChannel._pubkey) {
       throw new Error('BroadcastChannel: Do not overwrite window.BroadcastChannel with this module, this is not a polyfill');
@@ -1448,7 +1414,6 @@ function fillOptionsWithDefaults() {
   return options;
 }
 },{}],12:[function(require,module,exports){
-(function (process){(function (){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1459,7 +1424,6 @@ exports.sleep = sleep;
 exports.randomInt = randomInt;
 exports.randomToken = randomToken;
 exports.microSeconds = microSeconds;
-exports.isNode = void 0;
 
 /**
  * returns true if the given object is a promise
@@ -1513,17 +1477,7 @@ function microSeconds() {
     return ms * 1000;
   }
 }
-/**
- * copied from the 'detect-node' npm module
- * We cannot use the module directly because it causes problems with rollup
- * @link https://github.com/iliakan/detect-node/blob/master/index.js
- */
-
-
-var isNode = Object.prototype.toString.call(typeof process !== 'undefined' ? process : 0) === '[object process]';
-exports.isNode = isNode;
-}).call(this)}).call(this,require('_process'))
-},{"_process":17}],13:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 function _interopRequireDefault(obj) {
   return obj && obj.__esModule ? obj : {
     "default": obj
@@ -1611,192 +1565,6 @@ function now() {
 exports.now = now;
 
 },{}],17:[function(require,module,exports){
-// shim for using process in browser
-var process = module.exports = {};
-
-// cached from whatever global is present so that test runners that stub it
-// don't break things.  But we need to wrap it in a try catch in case it is
-// wrapped in strict mode code which doesn't define any globals.  It's inside a
-// function because try/catches deoptimize in certain engines.
-
-var cachedSetTimeout;
-var cachedClearTimeout;
-
-function defaultSetTimout() {
-    throw new Error('setTimeout has not been defined');
-}
-function defaultClearTimeout () {
-    throw new Error('clearTimeout has not been defined');
-}
-(function () {
-    try {
-        if (typeof setTimeout === 'function') {
-            cachedSetTimeout = setTimeout;
-        } else {
-            cachedSetTimeout = defaultSetTimout;
-        }
-    } catch (e) {
-        cachedSetTimeout = defaultSetTimout;
-    }
-    try {
-        if (typeof clearTimeout === 'function') {
-            cachedClearTimeout = clearTimeout;
-        } else {
-            cachedClearTimeout = defaultClearTimeout;
-        }
-    } catch (e) {
-        cachedClearTimeout = defaultClearTimeout;
-    }
-} ())
-function runTimeout(fun) {
-    if (cachedSetTimeout === setTimeout) {
-        //normal enviroments in sane situations
-        return setTimeout(fun, 0);
-    }
-    // if setTimeout wasn't available but was latter defined
-    if ((cachedSetTimeout === defaultSetTimout || !cachedSetTimeout) && setTimeout) {
-        cachedSetTimeout = setTimeout;
-        return setTimeout(fun, 0);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedSetTimeout(fun, 0);
-    } catch(e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't trust the global object when called normally
-            return cachedSetTimeout.call(null, fun, 0);
-        } catch(e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error
-            return cachedSetTimeout.call(this, fun, 0);
-        }
-    }
-
-
-}
-function runClearTimeout(marker) {
-    if (cachedClearTimeout === clearTimeout) {
-        //normal enviroments in sane situations
-        return clearTimeout(marker);
-    }
-    // if clearTimeout wasn't available but was latter defined
-    if ((cachedClearTimeout === defaultClearTimeout || !cachedClearTimeout) && clearTimeout) {
-        cachedClearTimeout = clearTimeout;
-        return clearTimeout(marker);
-    }
-    try {
-        // when when somebody has screwed with setTimeout but no I.E. maddness
-        return cachedClearTimeout(marker);
-    } catch (e){
-        try {
-            // When we are in I.E. but the script has been evaled so I.E. doesn't  trust the global object when called normally
-            return cachedClearTimeout.call(null, marker);
-        } catch (e){
-            // same as above but when it's a version of I.E. that must have the global object for 'this', hopfully our context correct otherwise it will throw a global error.
-            // Some versions of I.E. have different rules for clearTimeout vs setTimeout
-            return cachedClearTimeout.call(this, marker);
-        }
-    }
-
-
-
-}
-var queue = [];
-var draining = false;
-var currentQueue;
-var queueIndex = -1;
-
-function cleanUpNextTick() {
-    if (!draining || !currentQueue) {
-        return;
-    }
-    draining = false;
-    if (currentQueue.length) {
-        queue = currentQueue.concat(queue);
-    } else {
-        queueIndex = -1;
-    }
-    if (queue.length) {
-        drainQueue();
-    }
-}
-
-function drainQueue() {
-    if (draining) {
-        return;
-    }
-    var timeout = runTimeout(cleanUpNextTick);
-    draining = true;
-
-    var len = queue.length;
-    while(len) {
-        currentQueue = queue;
-        queue = [];
-        while (++queueIndex < len) {
-            if (currentQueue) {
-                currentQueue[queueIndex].run();
-            }
-        }
-        queueIndex = -1;
-        len = queue.length;
-    }
-    currentQueue = null;
-    draining = false;
-    runClearTimeout(timeout);
-}
-
-process.nextTick = function (fun) {
-    var args = new Array(arguments.length - 1);
-    if (arguments.length > 1) {
-        for (var i = 1; i < arguments.length; i++) {
-            args[i - 1] = arguments[i];
-        }
-    }
-    queue.push(new Item(fun, args));
-    if (queue.length === 1 && !draining) {
-        runTimeout(drainQueue);
-    }
-};
-
-// v8 likes predictible objects
-function Item(fun, array) {
-    this.fun = fun;
-    this.array = array;
-}
-Item.prototype.run = function () {
-    this.fun.apply(null, this.array);
-};
-process.title = 'browser';
-process.browser = true;
-process.env = {};
-process.argv = [];
-process.version = ''; // empty string to avoid regexp issues
-process.versions = {};
-
-function noop() {}
-
-process.on = noop;
-process.addListener = noop;
-process.once = noop;
-process.off = noop;
-process.removeListener = noop;
-process.removeAllListeners = noop;
-process.emit = noop;
-process.prependListener = noop;
-process.prependOnceListener = noop;
-
-process.listeners = function (name) { return [] }
-
-process.binding = function (name) {
-    throw new Error('process.binding is not supported');
-};
-
-process.cwd = function () { return '/' };
-process.chdir = function (dir) {
-    throw new Error('process.chdir is not supported');
-};
-process.umask = function() { return 0; };
-
-},{}],18:[function(require,module,exports){
 "use strict";
 
 Object.defineProperty(exports, "__esModule", {
@@ -1840,7 +1608,7 @@ var _default = {
   add: add
 };
 exports["default"] = _default;
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 "use strict";
 
 var _interopRequireDefault = require("@babel/runtime/helpers/interopRequireDefault");
@@ -1910,4 +1678,4 @@ var _default = {
   getSize: getSize
 };
 exports["default"] = _default;
-},{"./browser.js":18,"./node.js":14,"@babel/runtime/helpers/interopRequireDefault":13,"detect-node":15}]},{},[2]);
+},{"./browser.js":17,"./node.js":14,"@babel/runtime/helpers/interopRequireDefault":13,"detect-node":15}]},{},[2]);

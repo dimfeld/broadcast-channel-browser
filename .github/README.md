@@ -7,7 +7,7 @@
 
 <h1 align="center">BroadcastChannel</h1>
 <p align="center">
-  <strong>A BroadcastChannel to send data between different browser-tabs or nodejs-processes</strong>
+  <strong>A BroadcastChannel to send data between different browser-tabs</strong>
   <br/>
   <span>+ LeaderElection over the channels</span><br />
 </p>
@@ -22,7 +22,10 @@
 
 * * *
 
-A BroadcastChannel that allows you to send data between different browser-tabs or nodejs-processes.
+A BroadcastChannel that allows you to send data between different browser-tabs.
+
+This is a fork of the original `broadcast-channel` package, with Node.js support removed
+so that it can be used in pure ES Modules contexts that don't have `require`.
 
 - It works completely **client-side** and **offline**.
 - Tested on **old browsers**, **new browsers**, **WebWorkers**, **Iframes** and **NodeJs**
@@ -229,7 +232,7 @@ const elector = createLeaderElection(channel);
 await elector.die();
 ```
 
-Handle duplicate leaders. This can happen on rare occurences like when the [CPU is on 100%](https://github.com/pubkey/broadcast-channel/issues/385) for longer time, or the browser [has throttled the javascript timers](https://github.com/pubkey/broadcast-channel/issues/414).
+Handle duplicate leaders. This can happen on rare occurrences like when the [CPU is on 100%](https://github.com/pubkey/broadcast-channel/issues/385) for longer time, or the browser [has throttled the javascript timers](https://github.com/pubkey/broadcast-channel/issues/414).
 
 ```js
 const elector = createLeaderElection(channel);

@@ -1,7 +1,7 @@
 {
   "name": "broadcast-channel",
   "version": "3.7.0",
-  "description": "A BroadcastChannel that works in New Browsers, Old Browsers, WebWorkers and NodeJs",
+  "description": "The broadcast-channel package with Node.JS support removed",
   "homepage": "https://github.com/pubkey/broadcast-channel#readme",
   "keywords": [
     "broadcast-channel",
@@ -17,12 +17,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/pubkey/broadcast-channel.git"
+    "url": "git+https://github.com/dimfeld/broadcast-channel.git"
   },
   "author": "pubkey",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/pubkey/broadcast-channel/issues"
+    "url": "https://github.com/dimfeld/broadcast-channel/issues"
   },
   "main": "./dist/lib/index.es5.js",
   "jsnext:main": "./dist/es/index.js",
@@ -65,7 +65,6 @@
   ],
   "dependencies": {
     "@babel/runtime": "^7.7.2",
-    "detect-node": "^2.1.0",
     "js-sha3": "0.8.0",
     "microseconds": "0.2.0",
     "nano-time": "1.0.0",
@@ -119,6 +118,7 @@
     "testcafe": "1.15.0",
     "ts-node": "10.1.0",
     "typescript": "4.3.5",
+    "uglify-js": "~3.13.10",
     "watchify": "4.0.0",
     "webpack": "5.44.0",
     "webpack-cli": "4.7.2"

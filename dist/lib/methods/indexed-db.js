@@ -327,7 +327,6 @@ function onMessage(channelState, fn, time) {
 }
 
 function canBeUsed() {
-  if (_util.isNode) return false;
   var idb = getIdb();
   if (!idb) return false;
   return true;

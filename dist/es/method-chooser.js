@@ -1,36 +1,10 @@
 import NativeMethod from './methods/native.js';
 import IndexeDbMethod from './methods/indexed-db.js';
 import LocalstorageMethod from './methods/localstorage.js';
-import SimulateMethod from './methods/simulate.js';
-import { isNode } from './util'; // order is important
+import SimulateMethod from './methods/simulate.js'; // order is important
 
 var METHODS = [NativeMethod, // fastest
 IndexeDbMethod, LocalstorageMethod];
-/**
- * The NodeMethod is loaded lazy
- * so it will not get bundled in browser-builds
- */
-
-if (isNode) {
-  /**
-   * we use the non-transpiled code for nodejs
-   * because it runs faster
-   */
-  var NodeMethod = require('../../src/methods/' + // use this hack so that browserify and others
-  // do not import the node-method by default
-  // when bundling.
-  'node.js');
-  /**
-   * this will be false for webpackbuilds
-   * which will shim the node-method with an empty object {}
-   */
-
-
-  if (typeof NodeMethod.canBeUsed === 'function') {
-    METHODS.push(NodeMethod);
-  }
-}
-
 export function chooseMethod(options) {
   var chooseMethods = [].concat(options.methods, METHODS).filter(Boolean); // directly chosen
 
@@ -51,7 +25,7 @@ export function chooseMethod(options) {
    */
 
 
-  if (!options.webWorkerSupport && !isNode) {
+  if (!options.webWorkerSupport) {
     chooseMethods = chooseMethods.filter(function (m) {
       return m.type !== 'idb';
     });
@@ -60,7 +34,7 @@ export function chooseMethod(options) {
   var useMethod = chooseMethods.find(function (method) {
     return method.canBeUsed();
   });
-  if (!useMethod) throw new Error('No useable methode found:' + JSON.stringify(METHODS.map(function (m) {
+  if (!useMethod) throw new Error('No useable method found:' + JSON.stringify(METHODS.map(function (m) {
     return m.type;
   })));else return useMethod;
 }

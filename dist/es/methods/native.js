@@ -1,4 +1,4 @@
-import { microSeconds as micro, isNode } from '../util';
+import { microSeconds as micro } from '../util';
 export var microSeconds = micro;
 export var type = 'native';
 export function create(channelName) {
@@ -33,12 +33,6 @@ export function onMessage(channelState, fn) {
   channelState.messagesCallback = fn;
 }
 export function canBeUsed() {
-  /**
-   * in the electron-renderer, isNode will be true even if we are in browser-context
-   * so we also check if window is undefined
-   */
-  if (isNode && typeof window === 'undefined') return false;
-
   if (typeof BroadcastChannel === 'function') {
     if (BroadcastChannel._pubkey) {
       throw new Error('BroadcastChannel: Do not overwrite window.BroadcastChannel with this module, this is not a polyfill');

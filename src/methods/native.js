@@ -1,6 +1,5 @@
 import {
-    microSeconds as micro,
-    isNode
+    microSeconds as micro
 } from '../util';
 
 export const microSeconds = micro;
@@ -42,12 +41,6 @@ export function onMessage(channelState, fn) {
 }
 
 export function canBeUsed() {
-
-    /**
-     * in the electron-renderer, isNode will be true even if we are in browser-context
-     * so we also check if window is undefined
-     */
-    if (isNode && typeof window === 'undefined') return false;
 
     if (typeof BroadcastChannel === 'function') {
         if (BroadcastChannel._pubkey) {
